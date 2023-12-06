@@ -1,12 +1,67 @@
 package com.example.advent2022
 
-import org.junit.Assert.*
 import org.junit.Test
 import java.io.File
-import java.util.*
 import kotlin.math.pow
 
 class AdventTest {
+
+
+    @Test
+    fun advent23_5 () {
+        val data = File("src/test/resources/input5").readText()
+        val lines = File("src/test/resources/input5").readLines()
+        data class Mapping (
+            var sourceStart: Long = 0,
+            var destStart: Long = 0,
+            var range: Long = 0
+        )
+
+        val seeds = lines[0].split(':')[1].trim().split(' ').map{ it.toLong() }
+        val blocksOfMappings = data.split("\r\n\r\n").drop(1).map{block ->
+            block.split("\r\n").drop(1).map {mappingBlock ->
+                val mappingBlockChunked = mappingBlock.trim().split(' ').map { it.trim().toLong() }
+                val mapping = Mapping()
+                mapping.sourceStart = mappingBlockChunked[1]
+                mapping.destStart = mappingBlockChunked[0]
+                mapping.range = mappingBlockChunked[2]
+                mapping
+            }
+        }
+        /* val seed2soil = blocksOfMappings[0]
+        val soil2fert = blocksOfMappings[1]
+        val fert2water = blocksOfMappings[2]
+        val water2light = blocksOfMappings[3]
+        val light2temp = blocksOfMappings[4]
+        val temp2humid = blocksOfMappings[5]
+        val humid2loc = blocksOfMappings[6] */
+
+        val locations = seeds.map {seed ->
+            fun source2dest(seed: Long, i: Int): Long {
+                val s2sFiltered = blocksOfMappings[i].filter { mapping ->
+                    mapping.sourceStart < seed && (mapping.sourceStart + mapping.range > seed)
+                }.map { it.destStart + (seed - it.sourceStart) }
+                return if (s2sFiltered.isEmpty()) {
+                    seed
+                } else {
+                    s2sFiltered[0]
+                }
+            }
+
+            val soil = source2dest(seed,0)
+            val fert = source2dest(soil,1)
+            val water = source2dest(fert,2)
+            val light = source2dest(water,3)
+            val temp = source2dest(light,4)
+            val humid = source2dest(temp,5)
+            val loc = source2dest(humid,6)
+            loc
+        }
+        println(locations.min())
+        //println(blocksOfMappings)
+        //println(seeds)
+    }
+
 
 
     @Test
